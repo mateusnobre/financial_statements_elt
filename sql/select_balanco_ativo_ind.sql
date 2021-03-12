@@ -16,8 +16,13 @@ select cnpj_cia,
        substring(cd_conta, 6, 2) as level_3,
        substring(cd_conta, 9, 2) as level_4,
        substring(cd_conta, 12, 2) as level_5
-from financial_statements.itr_cia_aberta_BPA_con
-where ordem_exerc = 'ÚLTIMO')
+from (select *
+    from financial_statements.itr_cia_aberta_BPA_ind
+    union all
+    select *
+    from financial_statements.dfp_cia_aberta_BPA_ind
+ )cia_aberta_BPA_ind
+where cia_aberta_BPA_ind.ordem_exerc = 'ÚLTIMO')
 
 select replace(replace(replace(cnpj_cia, '.', ''), '/',''), '-', '') cnpj_cia,
     replace(denom_cia, '.', '') denom_cia,

@@ -6,7 +6,7 @@ import csv
 import requests
 import zipfile
 from io import BytesIO
-
+import os
 
 class DownloadCSVs(luigi.Task):
     def __init__(self):            
@@ -18,20 +18,22 @@ class DownloadCSVs(luigi.Task):
         return None
     def run(self):
         self.years = ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
+        
         for year in self.years:
-            response_itr = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_' + year +'.zip', stream = True)
-            if response_itr.ok:
-                z = zipfile.ZipFile(BytesIO(response_itr.content))
-                print('Succesfully downloaded {0} itr data'.format(year))
-                z.extractall('data')
-                print('Finished extracting itr data from {0}'.format(year))
-                
-            response_dfp = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_' + year + '.zip', stream = True)
-            if response_dfp.ok:
-                z = zipfile.ZipFile(BytesIO(response_dfp.content))
-                print('Succesfully downloaded {0} dfp data'.format(year))
-                z.extractall('data')
-                print('Finished extracting dfp data from {0}'.format(year))
+            if not os.path.isfile('data/itr_cia_aberta_' + year + '.csv'):
+                response_itr = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_' + year +'.zip', stream = True)
+                if response_itr.ok:
+                    z = zipfile.ZipFile(BytesIO(response_itr.content))
+                    print('Succesfully downloaded {0} itr data'.format(year))
+                    z.extractall('data')
+                    print('Finished extracting itr data from {0}'.format(year))
+            if not os.path.isfile('data/dfp_cia_aberta_' + year + '.csv'):    
+                response_dfp = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_' + year + '.zip', stream = True)
+                if response_dfp.ok:
+                    z = zipfile.ZipFile(BytesIO(response_dfp.content))
+                    print('Succesfully downloaded {0} dfp data'.format(year))
+                    z.extractall('data')
+                    print('Finished extracting dfp data from {0}'.format(year))
 
 class FromCSVToSQLServer(luigi.Task):
     
@@ -45,7 +47,7 @@ class FromCSVToSQLServer(luigi.Task):
         self.table_names = None
         self.years = None
     def requires(self):
-        return [DownloadCSVs]
+        return []#[DownloadCSVs()]
     def output(self):
         return luigi.LocalTarget([self.table_names, self.years])
     def run(self):
@@ -69,17 +71,17 @@ class FromCSVToSQLServer(luigi.Task):
                         columns = next(reader)
                         columns.append('ano')
                         print(columns)
-                        query = 'insert into {0}.{1}({2}) values ({3})'
+                        query = """
+                                insert into {0}.{1}({2}) values ({3})"""
                         query = query.format(self.dwh_schema, table_name, ','.join(columns), ','.join('?' * len(columns)))
                         cursor = cnxn.cursor()
                         logging.info("Inserting rows into Postgres with this query:")
                         logging.info(query)
                         for data in reader:
                             data.append(year)
-                            print(data)
                             cursor.execute(query, data) # accumulate rows on cursor before inserting
                         cursor.commit()
-                        logging.info("Done loading data from {1} into {0}.".format(table_name, year))
+                        print("Done loading data from {1} into {0}.".format(table_name, year))
     
 class ProcessData(luigi.Task):
     def __init__(self,
@@ -93,7 +95,7 @@ class ProcessData(luigi.Task):
         self.years = None
     
     def requires(self):
-        return []
+        return []#[FromCSVToSQLServer()]
 
     def output(self):
         return None
@@ -107,26 +109,37 @@ class ProcessData(luigi.Task):
                       "UID=SA;"
                       "PWD=<YourStrong@Passw0rd>;")
 
-        sql_paths = ['select_itr_bpa_con.sql']
+        sql_paths = ['select_balanco_ativo_ind.sql', 'select_balanco_ativo_con.sql', 'select_balanco_passivo_ind.sql', 'select_balanco_passivo_con.sql']
+        self.table_names = ['balanco_ativo_ind', 'balanco_ativo_con', 'balanco_passivo_ind', 'balanco_passivo_con']
 
-        file_prefixes = ["itr_cia_aberta", 'dfp_cia_aberta']
-        self.years = ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020']
-        table_suffixes = ['BPA_con']#['', 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DMPL_con", "DMPL_ind", "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
-        self.table_names = [file_prefix + '_' + table_suffix for table_suffix in table_suffixes for file_prefix in file_prefixes]
-        
+
         for table_name, sql_path in zip(self.table_names, sql_paths):
-                for year in self.years:         
-                    with open('sql/' + sql_path , 'r') as file:
-                        sql = file.read()    
-                        print(sql)       
-                    query = """
-                    with table as ({0})
-                    insert into {1}.{2} from table""".format(sql, self.dwh_schema, table_name)
+                with open('sql/' + sql_path , 'r') as file:
+                    sql = file.read()    
+                    print(sql)       
+                    query = """                
+                    insert into {1}.{2} from ({0}) table""".format(sql, self.dwh_schema, table_name)
                     cursor = cnxn.cursor()
                     cursor.execute(query)
                     cursor.commit()
-                    logging.info("Done processing data from {1} into {0}.".format(table_name, year))
+
+class DeleteCSVs(luigi.Task):
+    def __init__(self):            
+        super().__init__()
     
+    def requires(self):
+        return [ProcessData()]
+
+    def output(self):
+        return None
+
+    def run(self):
+        directory = "./data"
+        files_in_directory = os.listdir(directory)
+        filtered_files = [file for file in files_in_directory if file.endswith(".csv")]
+        for file in filtered_files:
+        	path_to_file = os.path.join(directory, file)
+        	os.remove(path_to_file)
 
 if __name__ == '__main__':
     luigi.run()
