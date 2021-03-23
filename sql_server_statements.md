@@ -14,7 +14,6 @@ create table financial_statements.itr_cia_aberta
 )
 go
 
-
 **create itr_cia_aberta_bpa_consolidado**
 
 create table financial_statements.itr_cia_aberta_bpa_consolidado
@@ -36,119 +35,57 @@ create table financial_statements.itr_cia_aberta_bpa_consolidado
 )
 go
 
+**create financial_statements.dfp_cia_aberta_DRE_con**
 
-**create balanco_ativo_ind**
 
-create table financial_statements.balanco_ativo_ind
+create table financial_statements.dfp_cia_aberta_DRE_con
 (
-	cnpj_cia text,
-	denom_cia text,
-	ds_conta text,
-	valor_2011_q1 float,
-    valor_2012_q1 float,
-	valor_2013_q1 float,
-	valor_2014_q1 float,
-	valor_2015_q1 float,
-	valor_2016_q1 float,
-	valor_2017_q1 float,
-	valor_2018_q1 float,
-	valor_2019_q1 float,
-	valor_2020_q1 float,
-	valor_2021_q1 float,
-    valor_2022_q1 float,
-	valor_2011_q2 float,
-    valor_2012_q2 float,
-	valor_2013_q2 float,
-	valor_2014_q2 float,
-	valor_2015_q2 float,
-	valor_2016_q2 float,
-	valor_2017_q2 float,
-	valor_2018_q2 float,
-	valor_2019_q2 float,
-	valor_2020_q2 float,
-	valor_2021_q2 float,
-    valor_2022_q2 float,
-	valor_2011_q3 float,
-    valor_2012_q3 float,
-	valor_2013_q3 float,
-	valor_2014_q3 float,
-	valor_2015_q3 float,
-	valor_2016_q3 float,
-	valor_2017_q3 float,
-	valor_2018_q3 float,
-	valor_2019_q3 float,
-	valor_2020_q3 float,
-	valor_2021_q3 float,
-    valor_2022_q3 float,
-	valor_2011_q4 float,
-    valor_2012_q4 float,
-	valor_2013_q4 float,
-	valor_2014_q4 float,
-	valor_2015_q4 float,
-	valor_2016_q4 float,
-	valor_2017_q4 float,
-	valor_2018_q4 float,
-	valor_2019_q4 float,
-	valor_2020_q4 float,
-	valor_2021_q4 float,
-    valor_2022_q4 float
-) 
+	CD_CONTA VARCHAR(18),
+	CD_CVM CHAR(6),
+	CNPJ_CIA VARCHAR(20),
+	DENOM_CIA VARCHAR(100),
+	DS_CONTA VARCHAR(100),
+	DT_FIM_EXERC VARCHAR(10),
+	DT_INI_EXERC VARCHAR(10),
+	DT_REFER VARCHAR(10),
+	ESCALA_MOEDA VARCHAR(100),
+	GRUPO_DFP VARCHAR(206),
+	MOEDA VARCHAR(100),
+	ORDEM_EXERC VARCHAR(9),
+	ST_CONTA_FIXA VARCHAR,
+	VERSAO INT,
+	VL_CONTA float,
+	ano int
+)
 go
 
 **create balanco_passivo_ind**
 
-create table financial_statements.balanco_passivo_ind
+
+create table dwh.balanco_passivo_ind
 (
-	cnpj_cia text,
-	denom_cia text,
-	ds_conta text,
-	valor_2011_q1 float,
-    valor_2012_q1 float,
-	valor_2013_q1 float,
-	valor_2014_q1 float,
-	valor_2015_q1 float,
-	valor_2016_q1 float,
-	valor_2017_q1 float,
-	valor_2018_q1 float,
-	valor_2019_q1 float,
-	valor_2020_q1 float,
-	valor_2021_q1 float,
-    valor_2022_q1 float,
-	valor_2011_q2 float,
-    valor_2012_q2 float,
-	valor_2013_q2 float,
-	valor_2014_q2 float,
-	valor_2015_q2 float,
-	valor_2016_q2 float,
-	valor_2017_q2 float,
-	valor_2018_q2 float,
-	valor_2019_q2 float,
-	valor_2020_q2 float,
-	valor_2021_q2 float,
-    valor_2022_q2 float,
-	valor_2011_q3 float,
-    valor_2012_q3 float,
-	valor_2013_q3 float,
-	valor_2014_q3 float,
-	valor_2015_q3 float,
-	valor_2016_q3 float,
-	valor_2017_q3 float,
-	valor_2018_q3 float,
-	valor_2019_q3 float,
-	valor_2020_q3 float,
-	valor_2021_q3 float,
-    valor_2022_q3 float,
-	valor_2011_q4 float,
-    valor_2012_q4 float,
-	valor_2013_q4 float,
-	valor_2014_q4 float,
-	valor_2015_q4 float,
-	valor_2016_q4 float,
-	valor_2017_q4 float,
-	valor_2018_q4 float,
-	valor_2019_q4 float,
-	valor_2020_q4 float,
-	valor_2021_q4 float,
-    valor_2022_q4 float
-) 
+	cnpj_cia varchar(20),
+	denom_cia varchar(100),
+	ds_conta varchar(100),
+	cd_conta varchar(18),
+	vl_conta float,
+	quarter varchar(10),
+	dt_fim_exerc varchar(10),
+	dt_refer varchar(10)
+)
+go
+
+**create demonstracao_resultado_con**
+
+create table dwh.demonstracao_resultado_con
+(
+	cnpj_cia varchar(20),
+	denom_cia varchar(100),
+	ds_conta varchar(100),
+	cd_conta varchar(18),
+	vl_conta float,
+	quarter varchar(10),
+	dt_ini_exerc varchar(10),
+	dt_fim_exerc varchar(10)
+)
 go

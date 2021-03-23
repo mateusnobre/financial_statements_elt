@@ -3,9 +3,56 @@ select cnpj_cia,
        denom_cia,
        ano,
        dt_refer,
-       (case when datepart(month , dt_refer) < 6 then 1
-           when datepart(month , dt_refer) < 9 then 2
-           when datepart(month , dt_refer) < 12 then 3 else 4 end) quarter,
+       DT_FIM_EXERC,
+       (case when (ano = 2011  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2011Q1'
+            when (ano = 2011 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2011Q2'
+            when (ano = 2011 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2011Q3'
+            when (ano = 2011 AND datepart(month , DT_FIM_EXERC) = 12)       then '2011Q4'
+             when (ano = 2012  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2012Q1'
+            when (ano = 2012 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2012Q2'
+            when (ano = 2012 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2012Q3'
+            when (ano = 2012 AND datepart(month , DT_FIM_EXERC) = 12)       then '2012Q4'  
+             when (ano = 2013  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2013Q1'
+            when (ano = 2013 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2013Q2'
+            when (ano = 2013 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2013Q3'
+            when (ano = 2013 AND datepart(month , DT_FIM_EXERC) = 12)       then '2013Q4'  
+             when (ano = 2014  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2014Q1'
+            when (ano = 2014 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2014Q2'
+            when (ano = 2014 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2014Q3'
+            when (ano = 2014 AND datepart(month , DT_FIM_EXERC) = 12)       then '2014Q4'  
+             when (ano = 2015  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2015Q1'
+            when (ano = 2015 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2015Q2'
+            when (ano = 2015 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2015Q3'
+            when (ano = 2015 AND datepart(month , DT_FIM_EXERC) = 12)       then '2015Q4'  
+             when (ano = 2016  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2016Q1'
+            when (ano = 2016 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2016Q2'
+            when (ano = 2016 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2016Q3'
+            when (ano = 2016 AND datepart(month , DT_FIM_EXERC) = 12)       then '2016Q4'  
+             when (ano = 2017  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2017Q1'
+            when (ano = 2017 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2017Q2'
+            when (ano = 2017 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2017Q3'
+            when (ano = 2017 AND datepart(month , DT_FIM_EXERC) = 12)       then '2017Q4'  
+             when (ano = 2018  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2018Q1'
+            when (ano = 2018 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2018Q2'
+            when (ano = 2018 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2018Q3'
+            when (ano = 2018 AND datepart(month , DT_FIM_EXERC) = 12)       then '2018Q4'  
+             when (ano = 2019  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2019Q1'
+            when (ano = 2019 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2019Q2'
+            when (ano = 2019 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2019Q3'
+            when (ano = 2019 AND datepart(month , DT_FIM_EXERC) = 12)       then '2019Q4'  
+             when (ano = 2020  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2020Q1'
+            when (ano = 2020 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2020Q2'
+            when (ano = 2020 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2020Q3'
+            when (ano = 2020 AND datepart(month , DT_FIM_EXERC) = 12)       then '2020Q4'  
+             when (ano = 2021  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2021Q1'
+            when (ano = 2021 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2021Q2'
+            when (ano = 2021 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2021Q3'
+            when (ano = 2021 AND datepart(month , DT_FIM_EXERC) = 12)       then '2021Q4'  
+             when (ano = 2022  AND datepart(month , DT_FIM_EXERC) in (3,4)) then '2022Q1'
+            when (ano = 2022 AND datepart(month , DT_FIM_EXERC) in (6,7))   then '2022Q2'
+            when (ano = 2022 AND datepart(month , DT_FIM_EXERC) in (9,10))  then '2022Q3'
+            when (ano = 2022 AND datepart(month , DT_FIM_EXERC) = 12)       then '2022Q4'  
+             else null end) quarter,
        (case when escala_moeda = 'MIL' then vl_conta * 1000
            when escala_moeda = 'UNIDADE' then vl_conta
            else 0 end) vl_conta,
@@ -16,66 +63,22 @@ select cnpj_cia,
        substring(cd_conta, 6, 2) as level_3,
        substring(cd_conta, 9, 2) as level_4,
        substring(cd_conta, 12, 2) as level_5
-from (select *
+from (
+    select *
     from financial_statements.itr_cia_aberta_BPA_ind
     union all
     select *
     from financial_statements.dfp_cia_aberta_BPA_ind
- )cia_aberta_BPA_ind
-where cia_aberta_BPA_ind.ordem_exerc = 'ÚLTIMO')
+ ) df
+where df.ordem_exerc = 'ÚLTIMO')
 
-select replace(replace(replace(cnpj_cia, '.', ''), '/',''), '-', '') cnpj_cia,
+select cnpj_cia,
     replace(denom_cia, '.', '') denom_cia,
     ds_conta,
     cd_conta,
-    sum(case when ano = 2011 and quarter = 1 then vl_conta else 0 end) valor_2011_q1,
-    sum(case when ano = 2011 and quarter = 2 then vl_conta else 0 end) valor_2011_q2,
-    sum(case when ano = 2011 and quarter = 3 then vl_conta else 0 end) valor_2011_q3,
-    sum(case when ano = 2011 and quarter = 4 then vl_conta else 0 end) valor_2011_q4,
-    sum(case when ano = 2012 and quarter = 1 then vl_conta else 0 end) valor_2012_q1,
-    sum(case when ano = 2012 and quarter = 2 then vl_conta else 0 end) valor_2012_q2,
-    sum(case when ano = 2012 and quarter = 3 then vl_conta else 0 end) valor_2012_q3,
-    sum(case when ano = 2012 and quarter = 4 then vl_conta else 0 end) valor_2012_q4,
-    sum(case when ano = 2013 and quarter = 1 then vl_conta else 0 end) valor_2013_q1,
-    sum(case when ano = 2013 and quarter = 2 then vl_conta else 0 end) valor_2013_q2,
-    sum(case when ano = 2013 and quarter = 3 then vl_conta else 0 end) valor_2013_q3,
-    sum(case when ano = 2013 and quarter = 4 then vl_conta else 0 end) valor_2013_q4,
-    sum(case when ano = 2014 and quarter = 1 then vl_conta else 0 end) valor_2014_q1,
-    sum(case when ano = 2014 and quarter = 2 then vl_conta else 0 end) valor_2014_q2,
-    sum(case when ano = 2014 and quarter = 3 then vl_conta else 0 end) valor_2014_q3,
-    sum(case when ano = 2014 and quarter = 4 then vl_conta else 0 end) valor_2014_q4,
-    sum(case when ano = 2015 and quarter = 1 then vl_conta else 0 end) valor_2015_q1,
-    sum(case when ano = 2015 and quarter = 2 then vl_conta else 0 end) valor_2015_q2,
-    sum(case when ano = 2015 and quarter = 3 then vl_conta else 0 end) valor_2015_q3,
-    sum(case when ano = 2015 and quarter = 4 then vl_conta else 0 end) valor_2015_q4,
-    sum(case when ano = 2016 and quarter = 1 then vl_conta else 0 end) valor_2016_q1,
-    sum(case when ano = 2016 and quarter = 2 then vl_conta else 0 end) valor_2016_q2,
-    sum(case when ano = 2016 and quarter = 3 then vl_conta else 0 end) valor_2016_q3,
-    sum(case when ano = 2016 and quarter = 4 then vl_conta else 0 end) valor_2016_q4,
-    sum(case when ano = 2017 and quarter = 1 then vl_conta else 0 end) valor_2017_q1,
-    sum(case when ano = 2017 and quarter = 2 then vl_conta else 0 end) valor_2017_q2,
-    sum(case when ano = 2017 and quarter = 3 then vl_conta else 0 end) valor_2017_q3,
-    sum(case when ano = 2017 and quarter = 4 then vl_conta else 0 end) valor_2017_q4,
-    sum(case when ano = 2018 and quarter = 1 then vl_conta else 0 end) valor_2018_q1,
-    sum(case when ano = 2018 and quarter = 2 then vl_conta else 0 end) valor_2018_q2,
-    sum(case when ano = 2018 and quarter = 3 then vl_conta else 0 end) valor_2018_q3,
-    sum(case when ano = 2018 and quarter = 4 then vl_conta else 0 end) valor_2018_q4,
-    sum(case when ano = 2019 and quarter = 1 then vl_conta else 0 end) valor_2019_q1,
-    sum(case when ano = 2019 and quarter = 2 then vl_conta else 0 end) valor_2019_q2,
-    sum(case when ano = 2019 and quarter = 3 then vl_conta else 0 end) valor_2019_q3,
-    sum(case when ano = 2019 and quarter = 4 then vl_conta else 0 end) valor_2019_q4,
-    sum(case when ano = 2020 and quarter = 1 then vl_conta else 0 end) valor_2020_q1,
-    sum(case when ano = 2020 and quarter = 2 then vl_conta else 0 end) valor_2020_q2,
-    sum(case when ano = 2020 and quarter = 3 then vl_conta else 0 end) valor_2020_q3,
-    sum(case when ano = 2020 and quarter = 4 then vl_conta else 0 end) valor_2020_q4,
-    sum(case when ano = 2021 and quarter = 1 then vl_conta else 0 end) valor_2021_q1,
-    sum(case when ano = 2021 and quarter = 2 then vl_conta else 0 end) valor_2021_q2,
-    sum(case when ano = 2021 and quarter = 3 then vl_conta else 0 end) valor_2021_q3,
-    sum(case when ano = 2021 and quarter = 4 then vl_conta else 0 end) valor_2021_q4,
-    sum(case when ano = 2022 and quarter = 1 then vl_conta else 0 end) valor_2022_q1,
-    sum(case when ano = 2022 and quarter = 2 then vl_conta else 0 end) valor_2022_q2,
-    sum(case when ano = 2022 and quarter = 3 then vl_conta else 0 end) valor_2022_q3,
-    sum(case when ano = 2022 and quarter = 4 then vl_conta else 0 end) valor_2022_q4
+    vl_conta,
+    quarter,
+    DT_FIM_EXERC,
+    dt_refer
 from aux
-where level_4 = ''
-group by cnpj_cia, denom_cia, ds_conta, cd_conta
+order by cnpj_cia asc, DT_FIM_EXERC asc, CD_CONTA asc
