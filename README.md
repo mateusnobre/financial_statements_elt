@@ -98,5 +98,18 @@ After running the commands above, you'll have:
 -   A luigi pipeline with thw whole process broken into tasks.
 -   A cron job that runs that process every month to get the latest data
 
+
+## Checking when the data is updated
+We get our data from that site, and here you can check if your desired year data was updated (every week the data is updated with corrections and re-presentations)
+
+http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS
+http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS
+
 ## What you can do with it?
 Access thousands of documents of listed companies on B3 within a single query and make analysis of some company financial health very quickly
+
+
+### Filling the spreadsheet (make sure the CNPJ is in this format: 47.508.411/0001-56) 
+```
+python fill_excel.py CNPJ_CIA
+```

@@ -158,11 +158,17 @@ def fill_demonstracao_resultado(sheet, info_dict, cnpj, years, start_data_column
         
     print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
     for column, data in data_by_quarter.items():
+        unused_values.write("""
+        Printing data from {0}
+        """.format(data['quarter']))
         if data is not None:
             for ds_conta, row_number in info_dict.items():
                 value = data[data['ds_conta'] == ds_conta]['vl_conta']
-                if not value.empty: 
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
                     sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']])
+    
     unused_values.close()
     return sheet
 
