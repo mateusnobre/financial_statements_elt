@@ -1,6 +1,5 @@
 
 import luigi
-import logging
 import pyodbc
 import pandas as pd
 import csv
@@ -17,7 +16,7 @@ UID = os.environ.get("UID")
 PWD = os.environ.get("PASSWORD")
 SERVER = os.environ.get("SERVER")
 DATABASE = os.environ.get("DATABASE")
-print(SERVER)
+
 # defining the year to extract and process data from
 YEARS = ['2011']
 
@@ -25,7 +24,7 @@ YEARS = ['2011']
 FILE_PREFIXES = ["dfp_cia_aberta"]#, 'dfp_cia_aberta']
 
 # defining the tables that we want to extract and process data from
-TABLE_SUFFIXES = []#'DRE_con']#, "DRE_con", 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DMPL_con", "DMPL_ind", "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
+TABLE_SUFFIXES = []#'DRE_ind', "DRE_con", 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DMPL_con", "DMPL_ind", "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
  
 class DownloadCSVs(luigi.Task):
     def __init__(self):            

@@ -2,6 +2,15 @@ import openpyxl as xw
 import pyodbc
 import sys
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+# retrieving env variables
+load_dotenv()
+UID = os.environ.get("UID")
+PWD = os.environ.get("PASSWORD")
+SERVER = os.environ.get("SERVER")
+DATABASE = os.environ.get("DATABASE")
 
 def fill_ativo_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
     quarters = [year + "Q4" for year in years]
