@@ -82,8 +82,6 @@ PYTHONPATH='.' luigi --module main NameOfTheTask
 ```
 
 
-
-
 ### Scheduling the Pipeline
 
 
@@ -108,8 +106,14 @@ http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS
 ## What you can do with it?
 Access thousands of documents of listed companies on B3 within a single query and make analysis of some company financial health very quickly
 
-
 ### Filling the spreadsheet (make sure the CNPJ is in this format: 47.508.411/0001-56) 
 ```
 python fill_excel.py CNPJ_CIA
 ```
+
+### To-do
+☐ Check last modified date on each year before downloading it (tip: use BeautifulSoup)
+    http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS
+    http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS
+☐ Storage optimizations (Create tables to store info from the companies and info from ds_conta strings)
+☐ Process DVA, DMPL, DFC_MI, DFC_MD and CIAS_ABERTAS data into the data warehouse (tip: use already existent sql as base, the logic is almost the same)

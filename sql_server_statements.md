@@ -1,3 +1,10 @@
+**create schemas**
+
+CREATE SCHEMA financial_statements;
+GO
+CREATE SCHEMA dwh;
+GO
+
 **create itr_cia_aberta**
 
 create table financial_statements.itr_cia_aberta/dfp_cia_aberta

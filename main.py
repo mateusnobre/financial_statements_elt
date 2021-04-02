@@ -133,6 +133,10 @@ class FromCSVToSQLServer(luigi.Task):
 
 
             """)
+        all_files_csv = [file for file in files_in_directory if file.endswith(".csv")]
+        for file in all_files_csv:
+        	path_to_file = os.path.join(directory, file)
+        	os.remove(path_to_file)
         end = time.time()
         print(years_time)
         print(tables_time)
@@ -163,7 +167,6 @@ class ProcessData(luigi.Task):
         return None
 
     def run(self):
-        #table_names = self.input()[0]
 
         connection_string = "Driver={ODBC Driver 17 for SQL Server};"+"Server={0};".format(SERVER)+"Database={0};".format(DATABASE)+"UID={0};".format(UID)+"PWD={0};".format(PWD)
         cnxn = pyodbc.connect(connection_string)
