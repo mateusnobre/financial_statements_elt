@@ -12,123 +12,190 @@ PWD = os.environ.get("PASSWORD")
 SERVER = os.environ.get("SERVER")
 DATABASE = os.environ.get("DATABASE")
 
-def fill_ativo_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
+def fill_ativo_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
     quarters = [year + "Q4" for year in years]
     columns = [chr(ord(start_data_column) + i)  for i in range(len(years))]
-    #columns.append(latest_data_column)
+    columns.append(latest_data_column)
     with open('sql/fill_excel/' + sql_path , 'r') as file:
         sql = file.read()
         sql = sql.format(cnpj, quarters[0], quarters[1], quarters[2], quarters[3])
         df = pd.read_sql(sql, cnxn)
-    print("""
+    text = """
     ---------------------------------------------------------------
         Ativo Circulante
     ---------------------------------------------------------------
-    """)
+    """
 
-    print(sql_path)
-    data_by_quarter = [df[df['quarter'] == quarter] for quarter in quarters]
-    print(data_by_quarter[2][['ds_conta','cd_conta']])
-    for data, column in zip(data_by_quarter, columns):
-        for ds_conta, row_number in info_dict.items():
-            value = data[data['ds_conta'] == ds_conta]['vl_conta']
-            if not value.empty: 
-                sheet[column + row_number] = value.to_numpy()[0]
+    unused_values.write(text)
+    print(text)
+    data_by_quarter = {columns[0]: None,
+                        columns[1]: None,
+                        columns[2]: None,
+                        columns[3]: None,
+                        columns[4]: None}
+
+    for quarter, i in zip(quarters, range(len(quarters))):
+        data_by_quarter[columns[i]] = df[df['quarter'] == quarter]
+        
+    print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
+    for column, data in data_by_quarter.items():
+        if data is not None:
+            for ds_conta, row_number in info_dict.items():
+                value = data[data['ds_conta'] == ds_conta]['vl_conta']
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
+                    sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
+    unused_values.close()
     return sheet
 
-def fill_ativo_n_circ_rlp(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
+def fill_ativo_n_circ_rlp(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
     quarters = [year + "Q4" for year in years]
     columns = [chr(ord(start_data_column) + i)  for i in range(len(years))]
-    #columns.append(latest_data_column)
+    columns.append(latest_data_column)
     with open('sql/fill_excel/' + sql_path , 'r') as file:
         sql = file.read()
         sql = sql.format(cnpj, quarters[0], quarters[1], quarters[2], quarters[3])
         df = pd.read_sql(sql, cnxn)
-    print("""
+    text = """
     ---------------------------------------------------------------
         Ativo Não Circulante
     ---------------------------------------------------------------
-    """)
+    """
 
-    data_by_quarter = [df[df['quarter'] == quarter] for quarter in quarters]
-    print(data_by_quarter[2][['ds_conta','cd_conta']])
-    for data, column in zip(data_by_quarter, columns):
-        for ds_conta, row_number in info_dict.items():
-            value = data[data['ds_conta'] == ds_conta]['vl_conta']
-            if not value.empty: 
-                sheet[column + row_number] = value.to_numpy()[0]
+    unused_values.write(text)
+    print(text)
+    data_by_quarter = {columns[0]: None,
+                        columns[1]: None,
+                        columns[2]: None,
+                        columns[3]: None,
+                        columns[4]: None}
+
+    for quarter, i in zip(quarters, range(len(quarters))):
+        data_by_quarter[columns[i]] = df[df['quarter'] == quarter]
+        
+    print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
+    for column, data in data_by_quarter.items():
+        if data is not None:
+            for ds_conta, row_number in info_dict.items():
+                value = data[data['ds_conta'] == ds_conta]['vl_conta']
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
+                    sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
+    unused_values.close()
     return sheet
 
-def fill_passivo_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
+def fill_passivo_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
     quarters = [year + "Q4" for year in years]
     columns = [chr(ord(start_data_column) + i)  for i in range(len(years))]
-    #columns.append(latest_data_column)
+    columns.append(latest_data_column)
     with open('sql/fill_excel/' + sql_path , 'r') as file:
         sql = file.read()
         sql = sql.format(cnpj, quarters[0], quarters[1], quarters[2], quarters[3])
         df = pd.read_sql(sql, cnxn)
-    print("""
+    text = """
     ---------------------------------------------------------------
         Passivo Circulante
     ---------------------------------------------------------------
-    """)
+    """
 
-    print(sql_path)
-    data_by_quarter = [df[df['quarter'] == quarter] for quarter in quarters]
-    print(data_by_quarter[2][['ds_conta','cd_conta']])
-    for data, column in zip(data_by_quarter, columns):
-        for ds_conta, row_number in info_dict.items():
-            value = data[data['ds_conta'] == ds_conta]['vl_conta']
-            if not value.empty: 
-                sheet[column + row_number] = value.to_numpy()[0]
+    unused_values.write(text)
+    print(text)
+    data_by_quarter = {columns[0]: None,
+                        columns[1]: None,
+                        columns[2]: None,
+                        columns[3]: None,
+                        columns[4]: None}
+
+    for quarter, i in zip(quarters, range(len(quarters))):
+        data_by_quarter[columns[i]] = df[df['quarter'] == quarter]
+        
+    print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
+    for column, data in data_by_quarter.items():
+        if data is not None:
+            for ds_conta, row_number in info_dict.items():
+                value = data[data['ds_conta'] == ds_conta]['vl_conta']
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
+                    sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
+    unused_values.close()
     return sheet
 
-def fill_passivo_n_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
+def fill_passivo_n_circ(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
     quarters = [year + "Q4" for year in years]
     columns = [chr(ord(start_data_column) + i)  for i in range(len(years))]
-    #columns.append(latest_data_column)
+    columns.append(latest_data_column)
     with open('sql/fill_excel/' + sql_path , 'r') as file:
         sql = file.read()
         sql = sql.format(cnpj, quarters[0], quarters[1], quarters[2], quarters[3])
         df = pd.read_sql(sql, cnxn)
-    print("""
+    text = """
     ---------------------------------------------------------------
         Passivo Não Circulante
     ---------------------------------------------------------------
-    """)
+    """
 
-    print(sql_path)
-    data_by_quarter = [df[df['quarter'] == quarter] for quarter in quarters]
-    print(data_by_quarter[2][['ds_conta','cd_conta']])
-    for data, column in zip(data_by_quarter, columns):
-        for ds_conta, row_number in info_dict.items():
-            value = data[data['ds_conta'] == ds_conta]['vl_conta']
-            if not value.empty: 
-                sheet[column + row_number] = value.to_numpy()[0]
+    unused_values.write(text)
+    print(text)
+    data_by_quarter = {columns[0]: None,
+                        columns[1]: None,
+                        columns[2]: None,
+                        columns[3]: None,
+                        columns[4]: None}
+
+    for quarter, i in zip(quarters, range(len(quarters))):
+        data_by_quarter[columns[i]] = df[df['quarter'] == quarter]
+        
+    print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
+    for column, data in data_by_quarter.items():
+        if data is not None:
+            for ds_conta, row_number in info_dict.items():
+                value = data[data['ds_conta'] == ds_conta]['vl_conta']
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
+                    sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
+    unused_values.close()
     return sheet
 
-def fill_patrimonio_liquido(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn):
+def fill_patrimonio_liquido(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
     quarters = [year + "Q4" for year in years]
     columns = [chr(ord(start_data_column) + i)  for i in range(len(years))]
-    #columns.append(latest_data_column)
+    columns.append(latest_data_column)
     with open('sql/fill_excel/' + sql_path , 'r') as file:
         sql = file.read()
         sql = sql.format(cnpj, quarters[0], quarters[1], quarters[2], quarters[3])
         df = pd.read_sql(sql, cnxn)
-    print("""
+
+    text = """
     ---------------------------------------------------------------
         Patrimônio Líquido
     ---------------------------------------------------------------
-    """)
+    """
 
-    print(sql_path)
-    data_by_quarter = [df[df['quarter'] == quarter] for quarter in quarters]
-    print(data_by_quarter[2][['ds_conta','cd_conta']])
-    for data, column in zip(data_by_quarter, columns):
-        for ds_conta, row_number in info_dict.items():
-            value = data[data['ds_conta'] == ds_conta]['vl_conta']
-            if not value.empty: 
-                sheet[column + row_number] = value.to_numpy()[0]
+    unused_values.write(text)
+    print(text)
+    data_by_quarter = {columns[0]: None,
+                        columns[1]: None,
+                        columns[2]: None,
+                        columns[3]: None,
+                        columns[4]: None}
+
+    for quarter, i in zip(quarters, range(len(quarters))):
+        data_by_quarter[columns[i]] = df[df['quarter'] == quarter]
+        
+    print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
+    for column, data in data_by_quarter.items():
+        if data is not None:
+            for ds_conta, row_number in info_dict.items():
+                value = data[data['ds_conta'] == ds_conta]['vl_conta']
+                if not value.empty:
+                    data.drop(data['ds_conta'] == ds_conta)
+                    sheet[column + row_number] += value.to_numpy()[0]
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
+    unused_values.close()
     return sheet
 
 def fill_demonstracao_resultado(sheet, info_dict, cnpj, years, start_data_column, latest_data_column, sql_path, cnxn, unused_values):
@@ -158,28 +225,21 @@ def fill_demonstracao_resultado(sheet, info_dict, cnpj, years, start_data_column
         
     print(data_by_quarter[columns[0]][['ds_conta', 'cd_conta', 'vl_conta']])
     for column, data in data_by_quarter.items():
-        unused_values.write("""
-        Printing data from {0}
-        """.format(data['quarter']))
         if data is not None:
             for ds_conta, row_number in info_dict.items():
                 value = data[data['ds_conta'] == ds_conta]['vl_conta']
                 if not value.empty:
                     data.drop(data['ds_conta'] == ds_conta)
                     sheet[column + row_number] += value.to_numpy()[0]
-        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']])
-    
+        unused_values.write(data[['ds_conta', 'cd_conta', 'vl_conta']].to_string())
     unused_values.close()
     return sheet
 
 def main():
     # print command line arguments
     cnpj = sys.argv[1]
-    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
-                  "Server=localhost, 1433;"
-                  "Database=master;"
-                  "UID=SA;"
-                  "PWD=<YourStrong@Passw0rd>;")
+    connection_string = "Driver={ODBC Driver 17 for SQL Server};"+"Server={0};".format(SERVER)+"Database={0};".format(DATABASE)+"UID={0};".format(UID)+"PWD={0};".format(PWD)
+    cnxn = pyodbc.connect(connection_string)
     years = ['2016', '2017', '2018', '2019']
     wb = xw.load_workbook('Spread - Entrada.xlsm') 
     sht = wb['Entrada']
@@ -265,27 +325,23 @@ def main():
     sht = fill_demonstracao_resultado(sht, rows_demonstracao_resultado, cnpj, years, start_data_column, latest_data_column, "select_demonstracao_resultado.sql", cnxn, unused_values)
     print(sht)
     wb.save(filename = 'Spread - Entrada.xlsm')
-    #
-    #sht = fill_ativo_circ(sht, rows_ativo_circ, cnpj, years, start_data_column, latest_data_column, "select_ativo_circ.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
-#
-    #sht = fill_ativo_n_circ_rlp(sht, rows_ativo_n_circ_rlp, cnpj, years, start_data_column, latest_data_column, "select_ativo_n_circ.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
-#
-    #sht = fill_ativo_permanente(sht, rows_ativo_permanente, cnpj, years, start_data_column, latest_data_column, "select_passivo_circ.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
-    #sht = fill_passivo_circ(sht, rows_passivo_circ, cnpj, years, start_data_column, latest_data_column, "select_passivo_circ.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
-    #sht = fill_passivo_n_circ(sht, rows_passivo_n_circ, cnpj, years, start_data_column, latest_data_column, "select_passivo_n_circ.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
-    #sht = fill_patrimonio_liquido(sht, rows_patrimonio_liquido, cnpj, years, start_data_column, latest_data_column, "select_patrimonio_liquido.sql", cnxn)
-    #print(sht)
-    #wb.save(filename = 'Spread - Entrada.xlsm')
+    
+    sht = fill_ativo_circ(sht, rows_ativo_circ, cnpj, years, start_data_column, latest_data_column, "select_ativo_circ.sql", cnxn, unused_values)
+    print(sht)
+    wb.save(filename = 'Spread - Entrada.xlsm')
+
+    sht = fill_ativo_n_circ_rlp(sht, rows_ativo_n_circ_rlp, cnpj, years, start_data_column, latest_data_column, "select_ativo_n_circ.sql", cnxn, unused_values)
+    print(sht)
+    wb.save(filename = 'Spread - Entrada.xlsm')
+    sht = fill_passivo_circ(sht, rows_passivo_circ, cnpj, years, start_data_column, latest_data_column, "select_passivo_circ.sql", cnxn, unused_values)
+    print(sht)
+    wb.save(filename = 'Spread - Entrada.xlsm')
+    sht = fill_passivo_n_circ(sht, rows_passivo_n_circ, cnpj, years, start_data_column, latest_data_column, "select_passivo_n_circ.sql", cnxn, unused_values)
+    print(sht)
+    wb.save(filename = 'Spread - Entrada.xlsm')
+    sht = fill_patrimonio_liquido(sht, rows_patrimonio_liquido, cnpj, years, start_data_column, latest_data_column, "select_patrimonio_liquido.sql", cnxn, unused_values)
+    print(sht)
+    wb.save(filename = 'Spread - Entrada.xlsm')
 
     unused_values.close()        
 if __name__ == "__main__":
