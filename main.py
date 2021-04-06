@@ -142,8 +142,11 @@ class FromCSVToSQLServer(luigi.Task):
             files_in_directory = os.listdir(directory)
             filtered_files = [file for file in files_in_directory if file.endswith(year+".csv")]
             for file in filtered_files:
-            	path_to_file = os.path.join(directory, file)
-            	os.remove(path_to_file)
+                try:
+            	    path_to_file = os.path.join(directory, file)
+            	    os.remove(path_to_file)
+                except:
+                    print("Cannot delete {0}, check if the file exist".format(file))
             print("Year {0} fully processed in {1} hours".format(year,delta_year_hours))
             print("""
             ----------------------------------------------------------------
@@ -278,8 +281,12 @@ class ProcessData(luigi.Task):
                 table = self.dwh_schema + '.' + table_name
                 print("Starting processing {0} data".format(table))
                 cursor.execute("truncate table {0}".format(table))
-                cursor.executemany("""                
-                insert into {0} values (?, ?, ?, ?, ?, ?, ?, ?)""".format(table), data.values.tolist())
+                if table_name in ['cias_abertas']:
+                    cursor.executemany("""                
+                    insert into {0} values ({1})""".format(table, ','.join('?' * 9)), data.values.tolist())
+                else:
+                    cursor.executemany("""                
+                    insert into {0} values ({1})""".format(table, ','.join('?' * 8)), data.values.tolist())
                 table_end = time.time()
                 delta_minutes = round((table_end-table_start)/60, 2)
                 tables_time[table_name] = delta_minutes

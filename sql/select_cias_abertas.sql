@@ -10,8 +10,8 @@ select
 	link_doc
 from (
     select *
-    from financial_statements.itr_cia_abertas
+    from financial_statements.itr_cia_aberta
     union all
     select *
-    from financial_statements.dfp_cia_abertas
+    from financial_statements.dfp_cia_aberta
  ) df
