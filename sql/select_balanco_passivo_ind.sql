@@ -57,12 +57,12 @@ select cnpj_cia,
            when escala_moeda = 'UNIDADE' then vl_conta
            else 0 end) vl_conta,
        ds_conta,
-       cd_conta,
-       replace(substring(cd_conta, 1, 2), '.', '') as level_1,
-       substring(cd_conta, 3, 2) as level_2,
-       substring(cd_conta, 6, 2) as level_3,
-       substring(cd_conta, 9, 2) as level_4,
-       substring(cd_conta, 12, 2) as level_5
+       cd_conta
+       --replace(substring(cd_conta, 1, 2), '.', '') as level_1,
+       --substring(cd_conta, 3, 2) as level_2,
+       --substring(cd_conta, 6, 2) as level_3,
+       --substring(cd_conta, 9, 2) as level_4,
+       --substring(cd_conta, 12, 2) as level_5
 from (
     select *
     from financial_statements.itr_cia_aberta_BPP_ind

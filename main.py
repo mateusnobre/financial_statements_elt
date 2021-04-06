@@ -18,13 +18,13 @@ SERVER = os.environ.get("SERVER")
 DATABASE = os.environ.get("DATABASE")
 
 # defining the year to extract and process data from
-YEARS = ['2011']
+YEARS = ['2016']
 
 # defining if we want both quartely and yearly data
-FILE_PREFIXES = ["dfp_cia_aberta"]#, 'dfp_cia_aberta']
+FILE_PREFIXES = ["dfp_cia_aberta", 'itr_cia_aberta']
 
 # defining the tables that we want to extract and process data from
-TABLE_SUFFIXES = []#'DRE_ind', "DRE_con", 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DMPL_con", "DMPL_ind", "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
+TABLE_SUFFIXES = ["DMPL_con", "DMPL_ind", 'DRE_ind', "DRE_con", 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
  
 class DownloadCSVs(luigi.Task):
     def __init__(self):            
@@ -91,7 +91,9 @@ class FromCSVToSQLServer(luigi.Task):
             year_start = time.time()
             for table_name in self.table_names:
                 table_start = time.time()
-                print('data/' + table_name + '_' +year + '.csv')
+                print("""-------------------------------------------------------------------------------------------
+                
+                """)
                 with open ('data/' + table_name + '_' +year + '.csv', 'r', encoding= 'unicode_escape') as f:
                     reader = csv.reader(f, delimiter = ';')
                     columns = next(reader)
@@ -172,8 +174,38 @@ class ProcessData(luigi.Task):
         cnxn = pyodbc.connect(connection_string)
         # defining the sql files that will process each of the tables
         # be aware that the sql_paths order MUST MATCH the table names order
-        sql_paths = ['select_demonstracao_resultado_ind.sql', 'select_demonstracao_resultado_con.sql', 'select_balanco_ativo_ind.sql', 'select_balanco_ativo_con.sql', 'select_balanco_passivo_ind.sql', 'select_balanco_passivo_con.sql']
-        self.table_names = ['demonstracao_resultado_ind', 'demonstracao_resultado_con', 'balanco_ativo_ind', 'balanco_ativo_con', 'balanco_passivo_ind', 'balanco_passivo_con']
+        sql_paths = ['select_demonstracao_resultado_ind.sql',
+                    'select_demonstracao_resultado_con.sql',
+                    'select_balanco_ativo_ind.sql',
+                    'select_balanco_ativo_con.sql',
+                    'select_balanco_passivo_ind.sql',
+                    'select_balanco_passivo_con.sql',
+                    'select_cias_abertas.sql',
+                    'select_demonstracao_fluxo_direto_con.sql',
+                    'select_demonstracao_fluxo_direto_ind.sql',
+                    'select_demonstracao_fluxo_indireto_con.sql',
+                    'select_demonstracao_fluxo_indireto_ind.sql',
+                    'select_demonstracao_valor_adicionado_con.sql',
+                    'select_demonstracao_valor_adicionado_ind.sql',
+                    'select_demonstracao_mutacao_con.sql',
+                    'select_demonstracao_mutacao_ind.sql'
+                    ]
+        self.table_names = ['demonstracao_resultado_ind',
+                    'demonstracao_resultado_con',
+                    'balanco_ativo_ind',
+                    'balanco_ativo_con',
+                    'balanco_passivo_ind',
+                    'balanco_passivo_con',
+                    'cias_abertas',
+                    'demonstracao_fluxo_direto_con',
+                    'demonstracao_fluxo_direto_ind',
+                    'demonstracao_fluxo_indireto_con',
+                    'demonstracao_fluxo_indireto_ind',
+                    'demonstracao_valor_adicionado_con',
+                    'demonstracao_valor_adicionado_ind',
+                    'demonstracao_mutacao_con',
+                    'demonstracao_mutacao_ind'                    
+                    ]
         
         cursor = cnxn.cursor()
         start_time = time.time()
@@ -183,7 +215,14 @@ class ProcessData(luigi.Task):
                 table_start = time.time()
                 sql = file.read()
                 data = pd.read_sql(sql = sql, con = cnxn)
-                if table_name in ['demonstracao_resultado_ind', 'demonstracao_resultado_con']:
+                if table_name in ['demonstracao_resultado_ind',
+                    'demonstracao_resultado_con',
+                    'demonstracao_fluxo_direto_con',
+                    'demonstracao_fluxo_direto_ind',
+                    'demonstracao_fluxo_indireto_con',
+                    'demonstracao_fluxo_indireto_ind',
+                    'demonstracao_valor_adicionado_con',
+                    'demonstracao_valor_adicionado_ind']:
                     columns = """cnpj_cia,
                                 denom_cia,
                                 ds_conta,
@@ -192,6 +231,26 @@ class ProcessData(luigi.Task):
                                 quarter,
                                 dt_ini_exerc,
                                 dt_fim_exerc"""
+                elif table_name in ['demonstracao_mutacao_ind', 'demonstracao_mutacao_con']:
+                    columns = """cnpj_cia,
+                        denom_cia,
+                        ds_conta,
+                        cd_conta,
+                        vl_conta,
+                        quarter,
+                        dt_ini_exerc,
+                        dt_fim_exerc,
+                        coluna_df"""
+                elif table_name in ['cias_abertas']:
+                    columns = """cnpj_cia,
+	                    dt_refer,
+	                    versao,
+	                    denom_cia,
+   	                    cd_cvm,
+	                    categ_doc,
+	                    id_doc,
+	                    dt_receb,
+	                    link_doc"""
                 else:
                     columns = """cnpj_cia,
                                 denom_cia,
