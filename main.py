@@ -281,7 +281,7 @@ class ProcessData(luigi.Task):
                 table = self.dwh_schema + '.' + table_name
                 print("Starting processing {0} data".format(table))
                 cursor.execute("truncate table {0}".format(table))
-                if table_name in ['cias_abertas']:
+                if table_name in ['cias_abertas', 'demonstracao_mutacao_con', 'demonstracao_mutacao_ind']:
                     cursor.executemany("""                
                     insert into {0} values ({1})""".format(table, ','.join('?' * 9)), data.values.tolist())
                 else:
