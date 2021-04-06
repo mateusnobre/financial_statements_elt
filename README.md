@@ -106,10 +106,29 @@ http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS
 ## What you can do with it?
 Access thousands of documents of listed companies on B3 within a single query and make analysis of some company financial health very quickly
 
+
+## How to use it
+You can choose between the 15 tables and write a query like this
+```
+select *
+from dwh.balanco_ativo_ind
+where cnpj_cia = '47.508.411/0001-56'
+    and quarter in ('2017Q4', '2018Q4', '2019Q4', '2020Q3')
+```
+Or this to get the data you want of the quarters () you want:
+
+```
+select *
+from dwh.demonstracao_resultado_ind
+where denom_cia = '%NomeDaEmpresa%'
+    and quarter in ('CUM_2017Q4', 'CUM_2018Q4', '2019Q2', 'CUM_2020Q3')
+```
+
 ### Filling the spreadsheet (make sure the CNPJ is in this format: 47.508.411/0001-56) 
 ```
 python fill_excel.py CNPJ_CIA
 ```
+
 
 ### To-do
 ☐ Check last modified date on each year before downloading it (tip: use BeautifulSoup)
