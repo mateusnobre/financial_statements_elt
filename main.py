@@ -18,13 +18,26 @@ SERVER = os.environ.get("SERVER")
 DATABASE = os.environ.get("DATABASE")
 
 # defining the year to extract and process data from
-YEARS = ['2016']
+YEARS = ['2011', '2012', '2013', '2014', '2015','2016', '2017', '2018', '2019''2020','2021', '2022']
 
 # defining if we want both quartely and yearly data
-FILE_PREFIXES = ["dfp_cia_aberta", 'itr_cia_aberta']
+FILE_PREFIXES = ['itr_cia_aberta', 'dfp_cia_aberta']
 
 # defining the tables that we want to extract and process data from
-TABLE_SUFFIXES = ["DMPL_con", "DMPL_ind", 'DRE_ind', "DRE_con", 'BPA_con', 'BPA_ind', 'BPP_con', 'BPP_ind', 'DFC_MD_con', 'DFC_MD_ind', 'DFC_MI_con', 'DFC_MI_ind', "DRE_con", "DRE_ind", "DVA_con", "DVA_ind"]
+TABLE_SUFFIXES = ["DMPL_con",
+                "DMPL_ind",
+                'DRE_ind',
+                "DRE_con",
+                'BPA_con',
+                'BPA_ind',
+                'BPP_con',
+                'BPP_ind',
+                'DFC_MD_con',
+                'DFC_MD_ind',
+                'DFC_MI_con',
+                'DFC_MI_ind',
+                "DVA_con",
+                "DVA_ind"]
  
 class DownloadCSVs(luigi.Task):
     def __init__(self):            
@@ -90,9 +103,10 @@ class FromCSVToSQLServer(luigi.Task):
         for year in self.years:
             year_start = time.time()
             for table_name in self.table_names:
+                i=0
                 table_start = time.time()
-                print("""-------------------------------------------------------------------------------------------
-                
+                print("""
+                ----------------------------------------------------------------
                 """)
                 with open ('data/' + table_name + '_' +year + '.csv', 'r', encoding= 'unicode_escape') as f:
                     reader = csv.reader(f, delimiter = ';')
@@ -107,8 +121,14 @@ class FromCSVToSQLServer(luigi.Task):
                     cursor.execute(delete_query)
                     print("Start loading data from {1} into {0}".format(year, table_name))
                     for data in reader:
-                        data.append(year)
-                        cursor.execute(insert_query, data) # accumulate rows on cursor before inserting
+                        try:
+                            data.append(year)
+                            cursor.execute(insert_query, data) # accumulate rows on cursor before inserting
+                            i = i+1
+                        except:
+                            i = i+1
+                            print("Couldn't process line {0} of {1}_{2}".format(i, table_name, year))
+
                     cursor.commit()
                     table_end = time.time()
                     table_delta_minutes = round(((table_end - table_start)/60),2)
@@ -116,7 +136,7 @@ class FromCSVToSQLServer(luigi.Task):
                     tables_time[table_name] += table_delta_minutes 
                     print("Done loading data from {1} into {0} in {2} minutes.".format(year, table_name, table_delta_minutes))
             year_end = time.time()
-            delta_year_hours = round(((year_end-year_start)/3600))
+            delta_year_hours = round(((year_end-year_start)/3600), 2)
             years_time[year] = delta_year_hours
             directory = "./data"
             files_in_directory = os.listdir(directory)
@@ -126,14 +146,9 @@ class FromCSVToSQLServer(luigi.Task):
             	os.remove(path_to_file)
             print("Year {0} fully processed in {1} hours".format(year,delta_year_hours))
             print("""
-
-
-
-            
             ----------------------------------------------------------------
-            
-
-
+            ----------------------------------------------------------------
+            ----------------------------------------------------------------
             """)
         all_files_csv = [file for file in files_in_directory if file.endswith(".csv")]
         for file in all_files_csv:
