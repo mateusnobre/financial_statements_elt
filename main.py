@@ -112,13 +112,13 @@ class FromCSVToSQLServer(luigi.Task):
                     reader = csv.reader(f, delimiter = ';')
                     columns = next(reader)
                     columns.append('ano')
-                    delete_query = """
-                            delete from {0}.{1} where ano = {2}""".format(self.dwh_schema, table_name, int(year))
+                    #delete_query = """
+                    #        delete from {0}.{1} where year(dt_refer) = {2}""".format(self.dwh_schema, table_name, int(year))
                     insert_query  = """insert into {0}.{1}({2}) values ({3})"""
                     insert_query = insert_query.format(self.dwh_schema, table_name, ','.join(columns), ','.join('?' * len(columns)))
                     cursor = cnxn.cursor()
-                    print("Deleting data from {0} already in the {1} table.".format(year, table_name))
-                    cursor.execute(delete_query)
+                    #print("Deleting data from {0} already in the {1} table.".format(year, table_name))
+                    #cursor.execute(delete_query)
                     print("Start loading data from {1} into {0}".format(year, table_name))
                     for data in reader:
                         try:
