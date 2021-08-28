@@ -18,10 +18,10 @@ SERVER = os.environ.get("SERVER")
 DATABASE = os.environ.get("DATABASE")
 
 # defining the year to extract and process data from
-YEARS = ['2011', '2012', '2013', '2014', '2015','2016', '2017', '2018', '2019''2020','2021', '2022']
+YEARS = ['2011']#, '2012', '2013', '2014', '2015','2016', '2017', '2018', '2019''2020','2021', '2022']
 
 # defining if we want both quartely and yearly data
-FILE_PREFIXES = ['itr_cia_aberta', 'dfp_cia_aberta']
+FILE_PREFIXES = ['itr_cia_aberta']#, 'dfp_cia_aberta']
 
 # defining the tables that we want to extract and process data from
 TABLE_SUFFIXES = ["DMPL_con",

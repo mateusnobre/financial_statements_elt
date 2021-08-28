@@ -1,23 +1,31 @@
 # Create Schemas
+## Create Tables cia_aberta
+## Create Tables BPA/BPP
+## Create Tables DRE/DVA/DFC_MI/DFC_MD
+## Create Tables DMPL
+## Create Tables Demonstração de Mutação do Patrimônio Líquido
+## Create Tables Balanços Ativo e Passivo
+## Create Tables Demonstração de Fluxo de Caixa - Método Direto
+## Create Tables Demonstração do Valor Adicionado
+## Create Tables Demonstração de Resultado do Exercício
+
+## Create Table Cias Abertas
+
 ```
 CREATE SCHEMA financial_statements;
 GO
 CREATE SCHEMA dwh;
 GO
-```
 
-## Create Tables cia_aberta
-
-```
 create table financial_statements.itr_cia_aberta
 (
    	cnpj_cia varchar(20),
 	dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
    	cd_cvm varchar(10),
 	categ_doc varchar(20),
-	id_doc text,
+	id_doc varchar(max),
 	dt_receb varchar(10),
 	link_doc varchar(121)
 )
@@ -27,25 +35,21 @@ create table financial_statements.dfp_cia_aberta
 (
    	cnpj_cia varchar(20),
 	dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
    	cd_cvm varchar(10),
 	categ_doc varchar(20),
-	id_doc text,
+	id_doc varchar(max),
 	dt_receb varchar(10),
 	link_doc varchar(121)
 )
 go
-```
 
-## Create Tables BPA/BPP
-
-```
 create table financial_statements.itr_cia_aberta_bpa_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -65,7 +69,7 @@ create table financial_statements.itr_cia_aberta_bpa_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -85,7 +89,7 @@ create table financial_statements.dfp_cia_aberta_bpa_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -105,7 +109,7 @@ create table financial_statements.dfp_cia_aberta_bpa_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -125,7 +129,7 @@ create table financial_statements.itr_cia_aberta_bpp_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -144,7 +148,7 @@ create table financial_statements.itr_cia_aberta_bpp_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -163,7 +167,7 @@ create table financial_statements.dfp_cia_aberta_bpp_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -182,7 +186,7 @@ create table financial_statements.dfp_cia_aberta_bpp_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -195,17 +199,12 @@ create table financial_statements.dfp_cia_aberta_bpp_ind
 	vl_conta float,
 	st_conta_fixa varchar(1)
 )
-
-```
-
-## Create Tables DRE/DVA/DFC_MI/DFC_MD
-
-```
+go
 create table financial_statements.dfp_cia_aberta_DRE_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -225,7 +224,7 @@ create table financial_statements.dfp_cia_aberta_DRE_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -245,7 +244,7 @@ create table financial_statements.itr_cia_aberta_DRE_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -264,7 +263,7 @@ create table financial_statements.itr_cia_aberta_DRE_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -284,7 +283,7 @@ create table financial_statements.dfp_cia_aberta_DVA_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -304,7 +303,7 @@ create table financial_statements.dfp_cia_aberta_DVA_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -324,7 +323,7 @@ create table financial_statements.itr_cia_aberta_DVA_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -343,7 +342,7 @@ create table financial_statements.itr_cia_aberta_DVA_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -363,7 +362,7 @@ create table financial_statements.dfp_cia_aberta_DFC_MI_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -383,7 +382,7 @@ create table financial_statements.dfp_cia_aberta_DFC_MI_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -403,7 +402,7 @@ create table financial_statements.itr_cia_aberta_DFC_MI_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -422,7 +421,7 @@ create table financial_statements.itr_cia_aberta_DFC_MI_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -442,7 +441,7 @@ create table financial_statements.dfp_cia_aberta_DFC_MD_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -462,7 +461,7 @@ create table financial_statements.dfp_cia_aberta_DFC_MD_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -482,7 +481,7 @@ create table financial_statements.itr_cia_aberta_DFC_MD_con
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -501,7 +500,7 @@ create table financial_statements.itr_cia_aberta_DFC_MD_ind
 (
 	cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -516,16 +515,12 @@ create table financial_statements.itr_cia_aberta_DFC_MD_ind
 	st_conta_fixa varchar(1)
 )
 go
-```
 
-## Create Tables DMPL
-
-```
 create table financial_statements.dfp_cia_aberta_DMPL_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -547,7 +542,7 @@ create table financial_statements.dfp_cia_aberta_DMPL_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -569,7 +564,7 @@ create table financial_statements.itr_cia_aberta_DMPL_con
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -591,7 +586,7 @@ create table financial_statements.itr_cia_aberta_DMPL_ind
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
     cd_cvm varchar(10),
 	grupo_dfp varchar (206),
@@ -608,11 +603,7 @@ create table financial_statements.itr_cia_aberta_DMPL_ind
 	ano int
 )
 go
-```
 
-## Create Tables Balanços Ativo e Passivo
-
-```
 create table dwh.balanco_passivo_con
 (
 	cnpj_cia varchar(20),
@@ -664,11 +655,7 @@ create table dwh.balanco_ativo_ind
 	dt_refer varchar(10)
 )
 go
-```
 
-## Create Tables Demonstração de Resultado do Exercício
-
-```
 create table dwh.demonstracao_resultado_con
 (
 	cnpj_cia varchar(20),
@@ -694,11 +681,7 @@ create table dwh.demonstracao_resultado_ind
 	dt_fim_exerc varchar(10)
 )
 go
-```
 
-## Create Tables Demonstração do Valor Adicionado
-
-```
 create table dwh.demonstracao_valor_adicionado_con
 (
 	cnpj_cia varchar(20),
@@ -724,11 +707,7 @@ create table dwh.demonstracao_valor_adicionado_ind
 	dt_fim_exerc varchar(10)
 )
 go
-```
 
-## Create Tables Demonstração de Fluxo de Caixa - Método Direto
-
-```
 create table dwh.demonstracao_fluxo_direto_con
 (
 	cnpj_cia varchar(20),
@@ -754,11 +733,7 @@ create table dwh.demonstracao_fluxo_direto_ind
 	dt_fim_exerc varchar(10)
 )
 go
-```
 
-## Create Tables Demonstração de Fluxo de Caixa - Método Indireto
-
-```
 create table dwh.demonstracao_fluxo_indireto_con
 (
 	cnpj_cia varchar(20),
@@ -784,11 +759,7 @@ create table dwh.demonstracao_fluxo_indireto_ind
 	dt_fim_exerc varchar(10)
 )
 go
-```
 
-## Create Tables Demonstração de Mutação do Patrimônio Líquido
-
-```
 create table dwh.demonstracao_mutacao_con
 (
 	cnpj_cia varchar(20),
@@ -816,20 +787,16 @@ create table dwh.demonstracao_mutacao_ind
 	COLUNA_DF CHAR(60)
 )
 go
-```
 
-## Create Table Cias Abertas
-
-```
 create table dwh.cias_abertas
 (
    	cnpj_cia varchar(20),
 	dt_refer varchar(10),
-	versao text,
+	versao varchar(max),
 	denom_cia varchar(100),
    	cd_cvm varchar(10),
 	categ_doc varchar(20),
-	id_doc text,
+	id_doc varchar(max),
 	dt_receb varchar(10),
 	link_doc varchar(121)
 )

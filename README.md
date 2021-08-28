@@ -50,6 +50,10 @@ notepad .env
 - Open sql_server_statements.md, 
 - Copy all statements and run on your console 
 
+
+### Install required driver for pyODBC to work
+https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15
+
 ### Setting up the Python Virtual Environment and Installing Required Packages
 
 
