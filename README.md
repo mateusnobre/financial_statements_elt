@@ -3,7 +3,7 @@ This is an Extract-Load-Transform pipeline built on top of Luigi that gather fin
 
 ### Prerequisites
 - python 3.8.5
-- virtualenv python package (you can installing running pip install virtualenv)
+- pipenv python package (you can installing running pip install virtualenv)
 - docker
 
 
@@ -19,18 +19,9 @@ cd financial_statement_elt
 ### Setting up the database (only if you don't already have a DB for tests) - Require Docker Installed
 
 On Linux: 
-https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash
- 
-On Windows:
-Install Docker and then follow the tutorial above for linux
-https://docs.docker.com/docker-for-windows/install/
+https://www.optimadata.nl/blogs/1/n8dyr5-how-to-run-postgres-on-docker-part-1\
 
 
-(This tutorial will create a db with these params by default):
-DATABASE=master 
-SERVER="localhost, 1433"
-UID=SA
-PASSWORD=<YourStrong@Passw0rd>
 
 ### Setting up Database Connection (here you'll open a .env file and insert DATABASE, SERVER, UID and PASSWORD credentials)
 
@@ -43,25 +34,17 @@ On Windows
 ```
 copy .env.sample .env
 notepad .env
-```
-### Creating required schemas and tables
 
-- Open a console for your DB (On MySQL Workbench, DataGrip, DBeaver, terminal, etc..)
-- Open sql_server_statements.md, 
-- Copy all statements and run on your console 
-
-
-### Install required driver for pyODBC to work
-https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15
+### Install postgres on your machine
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04
 
 ### Setting up the Python Virtual Environment and Installing Required Packages
 
 
 On both Linux and Windows (make sure to change that you are in the path of the repository working directory) 
 ```
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
+pipenv shell
+pipenv install
 ```
 
 ### Running the Pipeline
@@ -70,22 +53,8 @@ pip install -r requirements.txt
 On the script main.py, you can change the Global Variables YEARS (what years to load data from), FILE_PREFIXES (if you want to process quarterly and/or yearly data) and TABLE_SUFFIXES (what tables to process)
 
 ```
-luigid
+python3 main.py
 ```
-
-Now the Central Luigi Scheduler is up and running on http://localhost:8082/ 
-
-To run the entire Pipeline, you can run the last task
-```
-PYTHONPATH='.' luigi --module main ProcessData
-```
-
-To run the Pipeline until certain task, you can run:
-```
-PYTHONPATH='.' luigi --module main NameOfTheTask
-```
-
-
 ### Scheduling the Pipeline
 
 

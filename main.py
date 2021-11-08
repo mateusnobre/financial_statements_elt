@@ -1,108 +1,115 @@
-
-import luigi
-import pyodbc
+from prefect import task, Flow
+import psycopg2
 import pandas as pd
 import csv
 import requests
-import zipfile
 import time
+import zipfile
 from io import BytesIO
 import os
+from os.path import join, dirname
 from dotenv import load_dotenv
 
 # retrieving env variables
-load_dotenv()
-UID = os.environ.get("UID")
-PWD = os.environ.get("PASSWORD")
-SERVER = os.environ.get("SERVER")
-DATABASE = os.environ.get("DATABASE")
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(verbose=True)
+DB = os.environ.get("DB")
+HOST_URL = os.environ.get("HOST_URL")
+DB_USER = os.environ.get("DB_USER")
+DB_PWD = os.environ.get("DB_PWD")
+PORT = os.environ.get("PORT")
 
+conn = psycopg2.connect(
+    host=HOST_URL,
+    database=DB,
+    user=DB_USER,
+    password=DB_PWD,
+    port=PORT)
+cursor = conn.cursor()
 # defining the year to extract and process data from
 YEARS = ['2011']#, '2012', '2013', '2014', '2015','2016', '2017', '2018', '2019''2020','2021', '2022']
 
 # defining if we want both quartely and yearly data
-FILE_PREFIXES = ['itr_cia_aberta']#, 'dfp_cia_aberta']
+FILE_PREFIXES = ['itr_cia_aberta', 'dfp_cia_aberta']
 
 # defining the tables that we want to extract and process data from
-TABLE_SUFFIXES = ["DMPL_con",
-                "DMPL_ind",
-                'DRE_ind',
-                "DRE_con",
-                'BPA_con',
-                'BPA_ind',
-                'BPP_con',
-                'BPP_ind',
-                'DFC_MD_con',
-                'DFC_MD_ind',
-                'DFC_MI_con',
-                'DFC_MI_ind',
-                "DVA_con",
-                "DVA_ind"]
- 
-class DownloadCSVs(luigi.Task):
-    def __init__(self):            
-        super().__init__()
-        self.years = None
-        self.task_complete = False
-    def requires(self):
-        return []
-    def output(self):
-        return None
-    def run(self):
-        self.years = YEARS
-        for year in self.years:
-            if not os.path.isfile('data/itr_cia_aberta_' + year + '.csv'):
-                response_itr = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_' + year +'.zip', stream = True)
-                if response_itr.ok:
-                    z = zipfile.ZipFile(BytesIO(response_itr.content))
-                    print('Succesfully downloaded {0} itr data'.format(year))
-                    z.extractall('data')
-                    print('Finished extracting itr data from {0}'.format(year))
-            if not os.path.isfile('data/dfp_cia_aberta_' + year + '.csv'):    
-                response_dfp = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_' + year + '.zip', stream = True)
-                if response_dfp.ok:
-                    z = zipfile.ZipFile(BytesIO(response_dfp.content))
-                    print('Succesfully downloaded {0} dfp data'.format(year))
-                    z.extractall('data')
-                    print('Finished extracting dfp data from {0}'.format(year))
-        self.task_complete = True
-    def complete(self):
-            # Make sure you return false when you want the task to run.
-            # And true when complete
+TABLE_SUFFIXES_DICT = {
+                #  "DMPL_con": 'demonstracao_fluxo_direto_con',
+                # "DMPL_ind": 'demonstracao_mutacao_ind',
+                # 'DRE_ind': 'demonstracao_resultado_ind',
+                # "DRE_con": 'demonstracao_resultado_ind',
+                # 'BPA_con': 'balanco_ativo_con',
+                # 'BPA_ind': 'balanco_ativo_ind',
+                # 'BPP_con': 'balanco_passivo_con',
+                # 'BPP_ind': 'balanco_passivo_ind',
+                # 'DFC_MD_con': 'demonstracao_fluxo_direto_con',
+                # 'DFC_MD_ind': 'demonstracao_fluxo_direto_ind',
+                # 'DFC_MI_con': 'demonstracao_fluxo_indireto_con',
+                # 'DFC_MI_ind': 'demonstracao_fluxo_indireto_ind',
+                # "DVA_con": 'demonstracao_valor_adicionado_con',
+                # "DVA_ind": 'demonstracao_valor_adicionado_ind',
+                "": 'cias_abertas'}
+                
+STAGING_SCHEMA = 'staging'
+DATA_WAREHOUSE_SCHEMA = 'data_warehouse'
 
-            return  self.task_complete
+@task
+def CreateSchemas():
+    sql_preffix = 'create_schemas/'
+    sql_path = sql_preffix+'create_schemas.sql'
+    with open('sql/' + sql_path , 'r') as file:
+        cursor.execute(file.read().format(staging_schema=STAGING_SCHEMA, data_warehouse_schema=DATA_WAREHOUSE_SCHEMA))
+    conn.commit()
+@task
+def CreateTables():
+    staging_sql_preffix = 'create_tables/staging_schema/create_'
+    data_warehouse_sql_preffix = 'create_tables/data_warehouse_schema/create_' 
+    for key, val in TABLE_SUFFIXES_DICT.items():
+        for file_preffix in FILE_PREFIXES:
+            if (key == ''):
+                staging_sql_path = staging_sql_preffix + file_preffix + '.sql'
+            else: 
+                staging_sql_path = staging_sql_preffix + file_preffix + '_' + key + '.sql'
+            with open('sql/' + staging_sql_path , 'r') as file:
+                cursor.execute(file.read().format(schema=STAGING_SCHEMA))
+        dwh_sql_path = data_warehouse_sql_preffix + val + '.sql'
+        with open('sql/' + dwh_sql_path , 'r') as file:
+            cursor.execute(file.read().format(schema=DATA_WAREHOUSE_SCHEMA))
+    conn.commit()
+@task
+def DownloadCSVs():
+    years = YEARS
+    for year in years:
+        if not os.path.isfile('data/itr_cia_aberta_' + year + '.csv'):
+            response_itr = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_' + year +'.zip', stream = True)
+            if response_itr.ok:
+                z = zipfile.ZipFile(BytesIO(response_itr.content))
+                print('Succesfully downloaded {0} itr data'.format(year))
+                z.extractall('data')
+                print('Finished extracting itr data from {0}'.format(year))
+        if not os.path.isfile('data/dfp_cia_aberta_' + year + '.csv'):    
+            response_dfp = requests.get('http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_' + year + '.zip', stream = True)
+            if response_dfp.ok:
+                z = zipfile.ZipFile(BytesIO(response_dfp.content))
+                print('Succesfully downloaded {0} dfp data'.format(year))
+                z.extractall('data')
+                print('Finished extracting dfp data from {0}'.format(year))
 
-class FromCSVToSQLServer(luigi.Task):
-    
-    def __init__(self,
-                stg_schema = 'staging',
-                dwh_schema = 'financial_statements',
-                pg_table_pks = 'id'):            
-        super().__init__()
-        self.stg_schema = stg_schema
-        self.dwh_schema = dwh_schema
-        self.table_names = None
-        self.years = YEARS
-        self.task_complete = False 
-    def requires(self):
-        return [DownloadCSVs()]
-    def output(self):
-        return None
-    def run(self):
+@task
+def FromCSVToPostgres():
+        table_names = None
+        years = YEARS
         
         file_prefixes = FILE_PREFIXES 
-        table_suffixes = TABLE_SUFFIXES
-        self.table_names = [file_prefix + '_' + table_suffix for table_suffix in table_suffixes for file_prefix in file_prefixes]
-        for file_prefix in file_prefixes:
-            self.table_names.append(file_prefix)
-        connection_string = "Driver={ODBC Driver 17 for SQL Server};"+"Server={0};".format(SERVER)+"Database={0};".format(DATABASE)+"UID={0};".format(UID)+"PWD={0};".format(PWD)
-        cnxn = pyodbc.connect(connection_string)
+        table_suffixes = [key for key, _ in TABLE_SUFFIXES_DICT.items()]
+        table_names = [file_prefix + '_' + table_suffix if table_suffix != '' else file_prefix for table_suffix in table_suffixes for file_prefix in file_prefixes]
+        print(table_names)
         tables_time = dict()
         start = time.time()
         years_time = dict()
-        for year in self.years:
+        for year in years:
             year_start = time.time()
-            for table_name in self.table_names:
+            for table_name in table_names:
                 i=0
                 table_start = time.time()
                 print("""
@@ -113,10 +120,9 @@ class FromCSVToSQLServer(luigi.Task):
                     columns = next(reader)
                     columns.append('ano')
                     #delete_query = """
-                    #        delete from {0}.{1} where year(dt_refer) = {2}""".format(self.dwh_schema, table_name, int(year))
+                    #        delete from {0}.{1} where year(dt_refer) = {2}""".format(dest_schema, table_name, int(year))
                     insert_query  = """insert into {0}.{1}({2}) values ({3})"""
-                    insert_query = insert_query.format(self.dwh_schema, table_name, ','.join(columns), ','.join('?' * len(columns)))
-                    cursor = cnxn.cursor()
+                    insert_query = insert_query.format(STAGING_SCHEMA, table_name, ','.join(columns), ','.join(['%s'] * len(columns)))
                     #print("Deleting data from {0} already in the {1} table.".format(year, table_name))
                     #cursor.execute(delete_query)
                     print("Start loading data from {1} into {0}".format(year, table_name))
@@ -129,7 +135,7 @@ class FromCSVToSQLServer(luigi.Task):
                             i = i+1
                             print("Couldn't process line {0} of {1}_{2}".format(i, table_name, year))
 
-                    cursor.commit()
+                    conn.commit()
                     table_end = time.time()
                     table_delta_minutes = round(((table_end - table_start)/60),2)
                     tables_time[table_name] = 0 
@@ -153,158 +159,113 @@ class FromCSVToSQLServer(luigi.Task):
             ----------------------------------------------------------------
             ----------------------------------------------------------------
             """)
-        all_files_csv = [file for file in files_in_directory if file.endswith(".csv")]
-        for file in all_files_csv:
-        	path_to_file = os.path.join(directory, file)
-        	os.remove(path_to_file)
         end = time.time()
         print(years_time)
         print(tables_time)
         print("Finished task in {0} hours".format(round((end-start)/3600),2))
-        self.task_complete = True
-    def complete(self):
-            # Make sure you return false when you want the task to run.
-            # And true when complete
 
-            return  self.task_complete
-    
-class ProcessData(luigi.Task):
-    def __init__(self,
-                stg_schema = 'staging',
-                dwh_schema = 'dwh',
-                pg_table_pks = 'id'):            
-        super().__init__()
-        self.stg_schema = stg_schema
-        self.dwh_schema = dwh_schema
-        self.table_names = None
-        self.years = None
-        self.task_complete = False 
-    
-    def requires(self):
-        return [FromCSVToSQLServer()]
-
-    def output(self):
-        return None
-
-    def run(self):
-
-        connection_string = "Driver={ODBC Driver 17 for SQL Server};"+"Server={0};".format(SERVER)+"Database={0};".format(DATABASE)+"UID={0};".format(UID)+"PWD={0};".format(PWD)
-        cnxn = pyodbc.connect(connection_string)
-        # defining the sql files that will process each of the tables
+@task   
+def ProcessData():
+         # defining the sql files that will process each of the tables
         # be aware that the sql_paths order MUST MATCH the table names order
-        sql_paths = ['select_demonstracao_resultado_ind.sql',
-                    'select_demonstracao_resultado_con.sql',
-                    'select_balanco_ativo_ind.sql',
-                    'select_balanco_ativo_con.sql',
-                    'select_balanco_passivo_ind.sql',
-                    'select_balanco_passivo_con.sql',
-                    'select_cias_abertas.sql',
-                    'select_demonstracao_fluxo_direto_con.sql',
-                    'select_demonstracao_fluxo_direto_ind.sql',
-                    'select_demonstracao_fluxo_indireto_con.sql',
-                    'select_demonstracao_fluxo_indireto_ind.sql',
-                    'select_demonstracao_valor_adicionado_con.sql',
-                    'select_demonstracao_valor_adicionado_ind.sql',
-                    'select_demonstracao_mutacao_con.sql',
-                    'select_demonstracao_mutacao_ind.sql'
-                    ]
-        self.table_names = ['demonstracao_resultado_ind',
-                    'demonstracao_resultado_con',
-                    'balanco_ativo_ind',
-                    'balanco_ativo_con',
-                    'balanco_passivo_ind',
-                    'balanco_passivo_con',
-                    'cias_abertas',
-                    'demonstracao_fluxo_direto_con',
-                    'demonstracao_fluxo_direto_ind',
-                    'demonstracao_fluxo_indireto_con',
-                    'demonstracao_fluxo_indireto_ind',
-                    'demonstracao_valor_adicionado_con',
-                    'demonstracao_valor_adicionado_ind',
-                    'demonstracao_mutacao_con',
-                    'demonstracao_mutacao_ind'                    
-                    ]
-        
-        cursor = cnxn.cursor()
-        start_time = time.time()
-        tables_time = dict()
-        for table_name, sql_path in zip(self.table_names, sql_paths):
-            with open('sql/' + sql_path , 'r') as file:
-                table_start = time.time()
-                sql = file.read()
-                data = pd.read_sql(sql = sql, con = cnxn)
-                if table_name in ['demonstracao_resultado_ind',
-                    'demonstracao_resultado_con',
-                    'demonstracao_fluxo_direto_con',
-                    'demonstracao_fluxo_direto_ind',
-                    'demonstracao_fluxo_indireto_con',
-                    'demonstracao_fluxo_indireto_ind',
-                    'demonstracao_valor_adicionado_con',
-                    'demonstracao_valor_adicionado_ind']:
-                    columns = """cnpj_cia,
-                                denom_cia,
-                                ds_conta,
-                                cd_conta,
-                                vl_conta,
-                                quarter,
-                                dt_ini_exerc,
-                                dt_fim_exerc"""
-                elif table_name in ['demonstracao_mutacao_ind', 'demonstracao_mutacao_con']:
-                    columns = """cnpj_cia,
-                        denom_cia,
-                        ds_conta,
-                        cd_conta,
-                        vl_conta,
-                        quarter,
-                        dt_ini_exerc,
-                        dt_fim_exerc,
-                        coluna_df"""
-                elif table_name in ['cias_abertas']:
-                    columns = """cnpj_cia,
-	                    dt_refer,
-	                    versao,
-	                    denom_cia,
-   	                    cd_cvm,
-	                    categ_doc,
-	                    id_doc,
-	                    dt_receb,
-	                    link_doc"""
-                else:
-                    columns = """cnpj_cia,
-                                denom_cia,
-                                ds_conta,
-                                cd_conta
-                                vl_conta,
-                                quarter,
-                                dt_fim_exerc,
-                                dt_refer"""
-                table = self.dwh_schema + '.' + table_name
-                print("Starting processing {0} data".format(table))
-                cursor.execute("truncate table {0}".format(table))
-                if table_name in ['cias_abertas', 'demonstracao_mutacao_con', 'demonstracao_mutacao_ind']:
-                    cursor.executemany("""                
-                    insert into {0} values ({1})""".format(table, ','.join('?' * 9)), data.values.tolist())
-                else:
-                    cursor.executemany("""                
-                    insert into {0} values ({1})""".format(table, ','.join('?' * 8)), data.values.tolist())
-                table_end = time.time()
-                delta_minutes = round((table_end-table_start)/60, 2)
-                tables_time[table_name] = delta_minutes
-                print('Done processing data into {0}.{1} in {2} minutes'.format(self.dwh_schema, table_name, delta_minutes))
-                cursor.commit()
-        end_time = time.time()
-        print(tables_time)
-        print("""
+    sql_paths = ["select_{0}.sql".format(val) for _, val in TABLE_SUFFIXES_DICT.items()]
+    table_names = [val for _, val in TABLE_SUFFIXES_DICT.items()]
+    
+    tables_time = dict()
+    start_time = time.time()
+    for table_name, sql_path in zip(table_names, sql_paths):
+        with open('sql/process_data/' + sql_path , 'r') as file:
+            table_start = time.time()
+            sql = file.read().format(schema=STAGING_SCHEMA)
+            data = pd.read_sql(sql = sql, con = conn)
+            if table_name in ['demonstracao_resultado_ind',
+                'demonstracao_resultado_con',
+                'demonstracao_fluxo_direto_con',
+                'demonstracao_fluxo_direto_ind',
+                'demonstracao_fluxo_indireto_con',
+                'demonstracao_fluxo_indireto_ind',
+                'demonstracao_valor_adicionado_con',
+                'demonstracao_valor_adicionado_ind']:
+                columns = """cnpj_cia,
+                            denom_cia,
+                            ds_conta,
+                            cd_conta,
+                            vl_conta,
+                            quarter,
+                            dt_ini_exerc,
+                            dt_fim_exerc"""
+            elif table_name in ['demonstracao_mutacao_ind', 'demonstracao_mutacao_con']:
+                columns = """cnpj_cia,
+                    denom_cia,
+                    ds_conta,
+                    cd_conta,
+                    vl_conta,
+                    quarter,
+                    dt_ini_exerc,
+                    dt_fim_exerc,
+                    coluna_df"""
+            elif table_name in ['cias_abertas']:
+                columns = """cnpj_cia,
+	                dt_refer,
+	                versao,
+                    denom_cia,
+   	                cd_cvm,
+	                 categ_doc,
+	                id_doc,
+	                dt_receb,
+	                link_doc"""
+            else:
+                columns = """cnpj_cia,
+                            denom_cia,
+                            ds_conta,
+                            cd_conta
+                            vl_conta,
+                            quarter,
+                            dt_fim_exerc,
+                            dt_refer"""
+            table = DATA_WAREHOUSE_SCHEMA + '.' + table_name
+            print("Starting processing {0} data".format(table))
+            cursor.execute("truncate table {0}".format(table))
+            if table_name in ['cias_abertas', 'demonstracao_mutacao_con', 'demonstracao_mutacao_ind']:
+                cursor.executemany("""                
+                insert into {0} values ({1})""".format(table, ','.join(['%s'] * 9)), data.values.tolist())
+            else:
+                cursor.executemany("""                
+                insert into {0} values ({1})""".format(table, ','.join(['%s'] * 8)), data.values.tolist())
+            table_end = time.time()
+            delta_minutes = round((table_end-table_start)/60, 2)
+            tables_time[table_name] = delta_minutes
+            print('Done processing data into {0}.{1} in {2} minutes'.format(DATA_WAREHOUSE_SCHEMA, table_name, delta_minutes))
+            conn.commit()
+    end_time = time.time()
+    print(tables_time)
+    print("""
         
         Processed all data in {0} minutes
         -----------------------------------
-        """.format(round((end_time-start_time/60),2)))
-    def complete(self):
-            # Make sure you return false when you want the task to run.
-            # And true when complete
-
-            return  self.task_complete
-
+    """.format(round(((end_time-start_time)/60),2)))
 
 if __name__ == '__main__':
-    luigi.run()
+    with Flow("Financial Statements ELT") as flow:
+        create_schemas = CreateSchemas()
+        create_tables = CreateTables()
+        download_csvs = DownloadCSVs()
+        from_csv_to_postgres = FromCSVToPostgres()
+        process_data = ProcessData()
+        flow.set_dependencies(
+            task = process_data,
+            upstream_tasks = [create_schemas, create_tables, download_csvs, from_csv_to_postgres]
+        )
+        flow.set_dependencies(
+            task = from_csv_to_postgres,
+            upstream_tasks = [create_schemas, create_tables, download_csvs]
+        )
+        flow.set_dependencies(
+            task = download_csvs,
+            upstream_tasks = [create_schemas, create_tables]
+        )
+        flow.set_dependencies(
+            task = create_tables,
+            upstream_tasks = [create_schemas]
+        )
+    flow.run()
