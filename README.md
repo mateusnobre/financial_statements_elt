@@ -1,9 +1,9 @@
 # financial_statements_elt
-This is an Extract-Load-Transform pipeline built on top of Luigi that gather financial statements data since 2011 from http://dados.cvm.gov.br (Comissão de Valores Mobiliários), load it into a SQL Server Databas and process it to make the data more ready for comsuption.
+This is an Extract-Load-Transform pipeline built on top of Luigi that gather financial statements data since 2011 from http://dados.cvm.gov.br (Comissão de Valores Mobiliários), load it into a PostgreSQL database and process it to make the data more ready for comsuption.
 
 ### Prerequisites
 - python 3.8.5
-- pipenv python package (you can installing running pip install virtualenv)
+- pipenv python package (you can installing running `pip install pipenv`)
 - docker
 
 
@@ -18,14 +18,14 @@ cd financial_statement_elt
 
 ### Setting up the database (only if you don't already have a DB for tests) - Require Docker Installed
 
-On Linux: 
+On Windows: 
 https://www.optimadata.nl/blogs/1/n8dyr5-how-to-run-postgres-on-docker-part-1\
 
 
 
 ### Setting up Database Connection (here you'll open a .env file and insert DATABASE, SERVER, UID and PASSWORD credentials)
 
-On linux 
+On Linux 
 ```
 cp .env.sample .env
 nano .env
@@ -37,6 +37,8 @@ notepad .env
 ````
 
 ### Install postgres on your machine
+
+On Linux (Ubuntu):
 https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04
 
 ### Setting up the Python Virtual Environment and Installing Required Packages
@@ -62,12 +64,9 @@ python3 main.py
 On Windows:
 https://blog.e-zest.com/tutorial-setting-up-cron-job-task-scheduler-in-windows#:~:text=The%20simplest%20way%20to%20create,on%20it%20to%20proceed%20further.
 
-On Linux:
-
 ## Results
 After running the commands above, you'll have:
--   A SQL Server Database running inside a docker container on your machine with two schemas: financial_statements (raw data) and dwh (processed data)
--   A luigi pipeline with thw whole process broken into tasks.
+-   A PostgreSQL Database running inside a docker container on your machine with two schemas: staging (raw data) and data_warehouse (processed data)
 -   A cron job that runs that process every month to get the latest data
 
 
@@ -81,7 +80,7 @@ http://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS
 Access thousands of documents of listed companies on B3 within a single query and make analysis of some company financial health very quickly
 
 
-## How to use it
+## How to use it -- OUTDATED
 You can choose between the 15 tables and write a query like this
 ```
 select *
