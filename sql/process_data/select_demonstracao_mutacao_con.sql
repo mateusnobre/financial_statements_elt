@@ -31,4 +31,4 @@ select distinct companies.id as cia_id,
        coluna_df
 from aux
          join {dw_schema}.companies on aux.cnpj_cia = {dw_schema}.companies.cnpj
-order by cia_id, DT_FIM_EXERC, CD_CONTA
+order by cia_id, quarter, CD_CONTA
