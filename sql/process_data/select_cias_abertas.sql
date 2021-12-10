@@ -1,8 +1,7 @@
-select
-   	cnpj_cia,
+select distinct
+   	companies.id as cia_id,
 	dt_refer,
 	versao,
-	denom_cia,
    	cd_cvm,
 	categ_doc,
 	id_doc,
@@ -10,8 +9,9 @@ select
 	link_doc
 from (
     select *
-    from {schema}.itr_cia_aberta
+    from {st_schema}.itr_cia_aberta
     union all
     select *
-    from {schema}.dfp_cia_aberta
+    from {st_schema}.dfp_cia_aberta
  ) df
+	join {dw_schema}.companies on df.cnpj_cia = {dw_schema}.companies.cnpj
