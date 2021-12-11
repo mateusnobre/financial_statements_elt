@@ -1,5 +1,4 @@
 create table if not exists {schema}.dfp_cia_aberta_bpa_ind
-
 (
     cnpj_cia varchar(20),
     dt_refer varchar(10),
