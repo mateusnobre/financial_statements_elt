@@ -35,10 +35,10 @@ FILE_PREFIXES = ['itr_cia_aberta', 'dfp_cia_aberta']
 
 # defining the tables that we want to extract and process data from
 TABLE_SUFFIXES_DICT = {
-    "DMPL_con": 'demonstracao_fluxo_direto_con',
+    "DMPL_con": 'demonstracao_mutacao_con',
     "DMPL_ind": 'demonstracao_mutacao_ind',
+    "DRE_con": 'demonstracao_resultado_con',
     'DRE_ind': 'demonstracao_resultado_ind',
-    "DRE_con": 'demonstracao_resultado_ind',
     'BPA_con': 'balanco_ativo_con',
     'BPA_ind': 'balanco_ativo_ind',
     'BPP_con': 'balanco_passivo_con',
@@ -72,7 +72,8 @@ def CreateTables():
     staging_sql_preffix = 'create_tables/staging_schema/create_'
     data_warehouse_sql_preffix = 'create_tables/data_warehouse_schema/create_'
 
-    with open('sql/' + data_warehouse_sql_preffix + 'dimensions.sql', 'r') as file:
+    with open('sql/' + data_warehouse_sql_preffix + 'dimensions.sql',
+              'r') as file:
         cursor.execute(file.read().format(schema=DATA_WAREHOUSE_SCHEMA))
     conn.commit()
 
@@ -87,7 +88,7 @@ def CreateTables():
         dwh_sql_path = data_warehouse_sql_preffix + val + '.sql'
         with open('sql/' + dwh_sql_path, 'r') as file:
             cursor.execute(file.read().format(schema=DATA_WAREHOUSE_SCHEMA))
-    conn.commit()    
+    conn.commit()
 
 
 @task
@@ -216,32 +217,32 @@ def ProcessData():
     start_time = time.time()
 
     with open('sql/process_data/insert_companies.sql', 'r') as file:
-        cursor.execute(file.read().format(dw_schema=DATA_WAREHOUSE_SCHEMA, st_schema=STAGING_SCHEMA))
+        cursor.execute(file.read().format(dw_schema=DATA_WAREHOUSE_SCHEMA,
+                                          st_schema=STAGING_SCHEMA))
     conn.commit()
 
     for table_name, sql_path in zip(table_names, sql_paths):
         with open('sql/process_data/' + sql_path, 'r') as file:
             table_start = time.time()
-            sql = file.read().format(dw_schema=DATA_WAREHOUSE_SCHEMA, st_schema=STAGING_SCHEMA)
+            sql = file.read().format(dw_schema=DATA_WAREHOUSE_SCHEMA,
+                                     st_schema=STAGING_SCHEMA)
             data = pd.read_sql(sql=sql, con=conn)
             table = DATA_WAREHOUSE_SCHEMA + '.' + table_name
             print("Starting processing {0} data".format(table))
             cursor.execute("truncate table {0}".format(table))
-            if table_name in [
-                    'cias_abertas', 'demonstracao_mutacao_con',
-                    'demonstracao_mutacao_ind'
+            if table_name == 'cias_abertas':
+                n_columns = 8
+            elif table_name in [
+                    'demonstracao_mutacao_con', 'demonstracao_mutacao_ind'
             ]:
-                cursor.executemany(
-                    """                
-                insert into {0} values ({1})""".format(table,
-                                                       ','.join(['%s'] * 8)),
-                    data.values.tolist())
+                n_columns = 6
             else:
-                cursor.executemany(
-                    """                
-                insert into {0} values ({1})""".format(table,
-                                                       ','.join(['%s'] * 7)),
-                    data.values.tolist())
+                n_columns = 5
+
+            cursor.executemany(
+                """                
+                insert into {0} values ({1})""".format(
+                    table, ','.join(['%s'] * n_columns)), data.values.tolist())
             table_end = time.time()
             delta_minutes = round((table_end - table_start) / 60, 2)
             tables_time[table_name] = delta_minutes
