@@ -1,6 +1,4 @@
-drop table if exists {schema}.companies;
-
-create table {schema}.companies
+create table if not exists {schema}.companies
 (
     id    serial primary key,
     denom varchar(100),
